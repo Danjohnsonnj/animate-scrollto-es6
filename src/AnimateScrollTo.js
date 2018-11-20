@@ -1,51 +1,50 @@
-const scrollToAnimated = (wrapper, targetX, targetY, durationMilliseconds, rate) => {
-  const currentX = wrapper.scrollLeft;
-  const currentY = wrapper.scrollTop;
-  const duration = durationMilliseconds || 250;
-  const stepRate = rate || 10;
-  const horizontalDirection = currentX < targetX ? 'right' : 'left';
-  const verticalDirection = currentY < targetY ? 'down' : 'up';
-  const horizontalDistance = Math.abs(currentX - targetX);
-  const verticalDistance = Math.abs(currentY - targetY);
+const animateScrollTo = ({
+  wrapper = document.scrollingElement,
+  targetX = 0,
+  targetY = 100,
+  duration = 500,
+  rate = 10,
+}) => {
+  const currentX = wrapper.scrollLeft
+  const currentY = wrapper.scrollTop
+  const horizontalDirection = currentX < targetX ? 'right' : 'left'
+  const verticalDirection = currentY < targetY ? 'down' : 'up'
+  const horizontalDistance = Math.abs(currentX - targetX)
+  const verticalDistance = Math.abs(currentY - targetY)
+  const win = wrapper.ownerDocument.defaultView
 
-  let horizontalStepAmount = horizontalDistance / (duration / stepRate);
-  horizontalStepAmount = horizontalDirection === 'left' ? -horizontalStepAmount : horizontalStepAmount;
+  let horizontalStepAmount = horizontalDistance / (duration / rate)
+  horizontalStepAmount = horizontalDirection === 'left' ? -horizontalStepAmount : horizontalStepAmount
 
-  let verticalStepAmount = verticalDistance / (duration / stepRate);
-  verticalStepAmount = verticalDirection === 'up' ? -verticalStepAmount : verticalStepAmount;
+  let verticalStepAmount = verticalDistance / (duration / rate)
+  verticalStepAmount = verticalDirection === 'up' ? -verticalStepAmount : verticalStepAmount
 
-  let animationId;
-  let count = 0;
+  let animationId
+  let count = 0
 
-  const mousewheelevt = (/Firefox/i.test(navigator.userAgent)) ? 'DOMMouseScroll' : 'mousewheel';
+  const mousewheelevt = (/Firefox/i.test(navigator.userAgent)) ? 'DOMMouseScroll' : 'mousewheel'
   const cancelAnimation = () => {
     if (animationId !== undefined){
-      window.cancelAnimationFrame(animationId);
-      animationId = undefined;
+      win.cancelAnimationFrame(animationId)
+      animationId = undefined
     }
-  };
-  window.document.addEventListener(mousewheelevt, cancelAnimation, false);
+  }
+  win.document.addEventListener(mousewheelevt, cancelAnimation, false)
 
   const stepScroll = () => {
-    animationId = window.requestAnimationFrame(() => {
-      window.animating = true;
+    animationId = win.requestAnimationFrame(() => {
       setTimeout(() => {
-        window.scrollBy(horizontalStepAmount, verticalStepAmount);
-        count += 1;
-        if (count < duration / stepRate) {
-          stepScroll();
+        win.scrollBy(horizontalStepAmount, verticalStepAmount)
+        count += 1
+        if (count < duration / rate) {
+          stepScroll()
         } else {
-          window.scrollTo(targetX, targetY);
-          window.animating = false;
+          win.scrollTo(targetX, targetY)
         }
-      }, stepRate);
-    });
-  };
-  stepScroll();
-};
-
-try {
-  module.exports = scrollToAnimated;
-} catch (err) {
-  console.error(err);
+      }, rate)
+    })
+  }
+  stepScroll()
 }
+
+module.exports = animateScrollTo
