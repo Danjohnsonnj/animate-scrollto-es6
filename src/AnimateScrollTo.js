@@ -1,17 +1,29 @@
+const isSmoothScrollSupported = 'scrollBehavior' in document.documentElement.style;
+
 const animateScrollTo = ({
-  wrapper = document.scrollingElement,
-  targetX = 0,
-  targetY = 100,
-  duration = 500,
-  rate = 10,
+  target = document.scrollingElement,
+  x = 0,
+  y = 100,
+  duration = 250,
+  rate = 10
 }) => {
-  const currentX = wrapper.scrollLeft
-  const currentY = wrapper.scrollTop
-  const horizontalDirection = currentX < targetX ? 'right' : 'left'
-  const verticalDirection = currentY < targetY ? 'down' : 'up'
-  const horizontalDistance = Math.abs(currentX - targetX)
-  const verticalDistance = Math.abs(currentY - targetY)
-  const win = wrapper.ownerDocument.defaultView
+
+  if (isSmoothScrollSupported) {
+    target.scrollTo({
+      top: y,
+      left: x,
+      behavior: 'smooth'
+    })
+    return
+  }
+
+  const currentX = target.scrollLeft
+  const currentY = target.scrollTop
+  const horizontalDirection = currentX < x ? 'right' : 'left'
+  const verticalDirection = currentY < y ? 'down' : 'up'
+  const horizontalDistance = Math.abs(currentX - x)
+  const verticalDistance = Math.abs(currentY - y)
+  const win = target.ownerDocument.defaultView
 
   let horizontalStepAmount = horizontalDistance / (duration / rate)
   horizontalStepAmount = horizontalDirection === 'left' ? -horizontalStepAmount : horizontalStepAmount
@@ -39,7 +51,7 @@ const animateScrollTo = ({
         if (count < duration / rate) {
           stepScroll()
         } else {
-          win.scrollTo(targetX, targetY)
+          win.scrollTo(x, y)
         }
       }, rate)
     })
